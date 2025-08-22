@@ -1,4 +1,4 @@
-import ical, { ICalAttendeeRole, ICalAttendeeStatus } from 'ical-generator'
+import ical, { ICalAttendeeRole, ICalAttendeeStatus, ICalAlarmType } from 'ical-generator'
 
 export function generateCalendarFile(appointmentData: any): string {
   const calendar = ical({ name: 'AutoCalendar Appointment' })
@@ -58,7 +58,7 @@ export function generateCalendarFile(appointmentData: any): string {
 
   // Add alarm/reminder
   event.createAlarm({
-    type: 'display',
+    type: ICalAlarmType.display,
     trigger: 15 * 60, // 15 minutes before
     description: 'Appointment reminder'
   })
