@@ -52,7 +52,7 @@ export async function processCall(callRecordId: string, userId: string) {
     await prisma.callRecord.update({
       where: { id: callRecordId },
       data: {
-        appointmentData: appointmentData,
+        appointmentData: appointmentData as any,
         confidenceScore: appointmentData.confidence,
         status: 'COMPLETED'
       }
