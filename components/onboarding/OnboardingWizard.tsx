@@ -92,9 +92,7 @@ export function OnboardingWizard() {
         <div className="max-w-4xl mx-auto">
           <CurrentStepComponent
             onNext={handleNext}
-            onBack={currentStep > 0 ? handleBack : undefined}
-            data={onboardingData}
-            currentStep={currentStep}
+            onBack={currentStep > 0 ? handleBack : () => {}}
           />
         </div>
       </div>
