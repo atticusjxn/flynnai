@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Business phone settings
+  businessPhone    String?
+  phoneProvider    String?
+  twilioAccountSid String?
+  twilioAuthToken  String?
+  
+  // Business details
+  businessName     String?
+  businessType     String?
+  
+  // Subscription
+  stripeCustomerId   String?
+  subscriptionStatus String? @default("free_trial")
+  trialStartDate     DateTime? @default(now())
+  planType          String? @default("free_trial")
+  
+  // Notification preferences
+  emailNotifications Boolean @default(true)
+  inAppNotifications Boolean @default(true)
+  emailTiming       String? @default("immediate") // immediate, daily, weekly
+  
+  clients          Client[]
+  appointments     Appointment[]
+  invoices         Invoice[]
+  phoneIntegrations PhoneIntegration[]
+  callRecords      CallRecord[]
+  jobs             Job[]
+  
+  @@map("users")
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  userId      String
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  appointments Appointment[]
+  invoices     Invoice[]
+  
+  @@map("clients")
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  status      AppointmentStatus @default(SCHEDULED)
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@map("appointments")
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  invoiceNumber String      @unique
+  description String
+  amount      Decimal       @db.Decimal(10, 2)
+  status      InvoiceStatus @default(DRAFT)
+  dueDate     DateTime?
+  paidDate    DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  items       InvoiceItem[]
+  
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  description String
+  quantity    Int     @default(1)
+  rate        Decimal @db.Decimal(10, 2)
+  amount      Decimal @db.Decimal(10, 2)
+  
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  
+  @@map("invoice_items")
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model PhoneIntegration {
+  id           String   @id @default(cuid())
+  provider     String   // "twilio", "ringcentral", "custom"
+  phoneNumber  String
+  accountSid   String?
+  authToken    String?
+  webhookUrl   String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  userId       String
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("phone_integrations")
+}
+
+model CallRecord {
+  id              String            @id @default(cuid())
+  phoneNumber     String
+  callSid         String?           // Twilio call SID
+  duration        Int?              // seconds
+  transcription   String?
+  rawTranscription String?
+  appointmentData Json?             // extracted appointment details
+  confidenceScore Float?
+  status          CallProcessStatus @default(PROCESSING)
+  emailSent       Boolean           @default(false)
+  calendarFileSent Boolean          @default(false)
+  consentGiven    Boolean           @default(false)
+  recordingUrl    String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("call_records")
+}
+
+enum CallProcessStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+  FILTERED_OUT
+  NO_APPOINTMENT
+}
+
+model Job {
+  id              String    @id @default(cuid())
+  title           String
+  customerName    String
+  customerPhone   String?
+  customerEmail   String?
+  serviceType     String?
+  description     String?
+  scheduledDate   DateTime?
+  scheduledTime   String?
+  estimatedDuration Int?    // minutes
+  address         String?
+  status          JobStatus @default(QUOTING)
+  priority        String?   @default("normal") // low, normal, high, urgent
+  estimatedCost   Decimal?  @db.Decimal(10, 2)
+  actualCost      Decimal?  @db.Decimal(10, 2)
+  notes           String?
+  attachments     Json?     // file URLs, photos, etc.
+  
+  // AI extraction metadata
+  extractedFromCall Boolean @default(false)
+  callRecordId     String?
+  confidenceScore  Float?
+  
+  // Tracking
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+  
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  invoices        Invoice[]
+  
+  @@map("jobs")
+}
+
+enum JobStatus {
+  QUOTING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
