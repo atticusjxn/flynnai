@@ -102,7 +102,7 @@ export function HeroSection() {
                 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-500">
-                    Join 2,000+ businesses already using AutoCalendar
+                    Join 2,000+ businesses already using Flynn.ai
                   </p>
                 </div>
               </div>

@@ -1,153 +1,229 @@
-# Flynn.ai - Voice-First Business Management Platform
+# 📞 Flynn.ai - AI-Powered Call-to-Job Scheduler
 
-Flynn.ai is a voice-first business management platform designed specifically for small service businesses like plumbers, cleaners, and trades professionals. Manage your business operations through natural voice commands.
+> **Never miss an appointment from a phone call again**
 
-## Features
+Flynn.ai transforms customer calls into organized jobs in your scheduler automatically. AI processes calls in real-time, extracts appointment details, and delivers them via email and/or in-app notifications within 2 minutes.
 
-- 🤖 **AI-Powered Voice**: Natural conversation with OpenAI integration - "Book John tomorrow around 2-ish"
-- 🎤 **Smart Voice Interface**: Understands flexible, conversational commands
-- 📅 **Intelligent Scheduling**: Voice-controlled appointment management with natural language
-- 👥 **Client Management**: Add and manage clients through voice commands
-- 💰 **Voice Invoicing**: Create invoices with natural speech - "Invoice Mike for 150 bucks"
-- 📱 **Mobile-First**: Floating voice button perfect for field workers
-- 🔄 **Smart Fallback**: Works even when AI is unavailable
-- 🔒 **Secure**: Built-in authentication and data protection
+![Flynn.ai Hero](https://via.placeholder.com/800x400/3b82f6/ffffff?text=Flynn.ai+Demo)
 
-## Voice Commands
+## ✨ Key Features
 
-**Natural Language (with OpenAI):**
-- "Book John tomorrow around 2-ish"
-- "Invoice Mike for 150 bucks for the sink repair" 
-- "What do I have going on this week?"
-- "Hey Flynn, schedule Sarah for next Tuesday afternoon"
-- "Add Tom Wilson with phone 555-1234"
+- **🤖 AI Call Processing**: Whisper + GPT-4 extract appointment details from any call
+- **📅 Job Scheduler**: Drag-and-drop pipeline management (Quoting → Confirmed → In Progress → Completed)
+- **📧 Flexible Delivery**: Choose email summaries, in-app notifications, or both
+- **📱 Universal Phone Integration**: Works with Twilio, RingCentral, or call forwarding
+- **💰 Simple Pricing**: $15/month with first month FREE
+- **🏢 Multi-Industry**: Perfect for plumbing, HVAC, cleaning, contracting, healthcare, and more
 
-**Basic Commands (always work):**
-- "Schedule [client] for [day] at [time]"
-- "Show my appointments for [day]"
-- "Create invoice for [client] for $[amount]"
-- "Add new client [name]"
-- "Show my clients"
+## 🚀 Quick Start
 
-## Quick Start
+### Prerequisites
 
-1. **Clone and install dependencies:**
+- Node.js 18+ and npm
+- PostgreSQL database
+- API keys for integrations (see setup below)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/atticusjxn/flynnai.git
+   cd flynnai
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. **Set up Supabase database:**
+3. **Set up environment variables**
    ```bash
-   # Copy environment variables
-   cp .env.example .env
-   
-   # Follow the detailed Supabase setup guide
-   # See SETUP-SUPABASE.md for complete instructions
+   cp .env.example .env.local
+   # Edit .env.local with your actual API keys and database URL
    ```
 
-3. **Configure your .env file:**
-   - Create a Supabase project at [supabase.com](https://supabase.com)
-   - Get your DATABASE_URL from Supabase Settings → Database
-   - Generate NEXTAUTH_SECRET: `openssl rand -base64 32`
-   - Update .env with your actual values
-
-4. **Setup OpenAI for intelligent voice (optional but recommended):**
+4. **Set up the database**
    ```bash
-   # Get API key from https://platform.openai.com/api-keys
-   # Add to .env file: OPENAI_API_KEY="sk-your-key-here"
+   npx prisma generate
+   npx prisma db push
    ```
 
-5. **Initialize database:**
-   ```bash
-   # Generate Prisma client and push schema to Supabase
-   npm run db:generate
-   npm run db:push
-   npm run db:seed  # Add sample data for testing
-   ```
-
-6. **Start the development server:**
+5. **Start the development server**
    ```bash
    npm run dev
    ```
 
-7. **Open your browser:**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+Visit `http://localhost:3001` to see your Flynn.ai landing page!
 
-> 📚 **Need help?** 
-> - Database: See [SETUP-SUPABASE.md](./SETUP-SUPABASE.md) 
-> - AI Voice: See [OPENAI-SETUP.md](./OPENAI-SETUP.md)
+## 🔧 Environment Setup
 
-## Tech Stack
+### Required API Keys
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **Voice**: Web Speech API (Speech Recognition + Text-to-Speech)
-- **Database**: Supabase (PostgreSQL) with Prisma ORM
-- **Authentication**: NextAuth.js
-- **UI**: Responsive design optimized for voice interaction
+1. **OpenAI API** (for call processing)
+   - Visit: https://platform.openai.com/api-keys
+   - Add to `.env.local`: `OPENAI_API_KEY="sk-your-key"`
 
-## Browser Compatibility
+2. **Stripe** (for payments)
+   - Visit: https://dashboard.stripe.com/apikeys
+   - Add keys and webhook secret to `.env.local`
 
-For best voice experience, use:
-- Chrome (recommended)
-- Edge
-- Safari (limited voice features)
+3. **Resend** (for email delivery)
+   - Visit: https://resend.com/api-keys
+   - Add to `.env.local`: `RESEND_API_KEY="re-your-key"`
 
-## Environment Variables
+4. **Twilio** (for phone integration)
+   - Visit: https://console.twilio.com/
+   - Add account SID and auth token to `.env.local`
 
-```env
-# Get from Supabase: Settings → Database → Connection string
-DATABASE_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
+5. **Database**
+   - Set up PostgreSQL locally or use a hosted service
+   - Add connection string to `.env.local`
 
-# Generate with: openssl rand -base64 32
-NEXTAUTH_SECRET="your-generated-secret-here"
+### NextAuth Secret
 
-# Development URL
-NEXTAUTH_URL="http://localhost:3000"
+Generate a secure secret for JWT tokens:
+```bash
+openssl rand -base64 32
 ```
 
-See [SETUP-SUPABASE.md](./SETUP-SUPABASE.md) for detailed configuration instructions.
-
-## Project Structure
+## 📋 Project Structure
 
 ```
-flynn/
-├── app/                 # Next.js App Router
-├── components/         # React components
-│   ├── voice/         # Voice interface components
-│   ├── dashboard/     # Dashboard components
-│   └── auth/          # Authentication components
-├── lib/               # Utility libraries
-├── prisma/            # Database schema
-└── types/             # TypeScript type definitions
+flynnai/
+├── app/                          # Next.js 14 App Router
+│   ├── api/                      # API routes
+│   │   ├── phone/webhook/        # Twilio webhook handler
+│   │   ├── stripe/               # Payment processing
+│   │   └── ...
+│   ├── onboarding/               # Multi-step onboarding flow
+│   └── page.tsx                  # Landing page
+├── components/
+│   ├── landing/                  # Landing page components
+│   │   ├── HeroSection.tsx       # Hero with animated demo
+│   │   ├── PricingSection.tsx    # $15/month pricing
+│   │   └── ...
+│   ├── onboarding/               # Onboarding wizard
+│   └── scheduler/                # Job management (upcoming)
+├── lib/
+│   ├── call-processing/          # AI call processing pipeline
+│   │   ├── transcription.ts     # Whisper API integration
+│   │   ├── appointmentExtractor.ts # GPT-4 data extraction
+│   │   └── emailDelivery.ts      # Email + calendar file generation
+│   ├── stripe.ts                 # Payment integration
+│   └── prisma.ts                 # Database client
+└── prisma/
+    └── schema.prisma             # Database schema
 ```
 
-## Getting Started with Voice
+## 🎯 Core User Flow
 
-1. Click the microphone button or say "Hey Flynn"
-2. Wait for the "Listening..." indicator
-3. Speak your command clearly
-4. Flynn will respond with voice feedback and take action
+1. **Customer calls** your business phone
+2. **AI processes** the call in real-time
+3. **Appointment details** are extracted (name, date, service, etc.)
+4. **Job appears** in your scheduler pipeline
+5. **Email sent** with call summary and calendar file
+6. **You manage** the job through completion
 
-## Development
+## 🔄 Job Pipeline Stages
+
+- **Quoting** - New leads requiring estimates
+- **Confirmed** - Accepted jobs, scheduled
+- **In Progress** - Currently working on
+- **Completed** - Finished jobs
+
+## 📊 Database Schema
+
+Key models:
+- `User` - Business owners with subscription info
+- `Job` - Extracted appointments with pipeline status
+- `CallRecord` - Call transcriptions and processing results
+- `PhoneIntegration` - Connected phone systems
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Connect to Vercel
+3. Add environment variables
+4. Deploy!
+
+### Manual Deployment
 
 ```bash
-# Run development server
-npm run dev
-
-# Generate Prisma client
-npm run db:generate
-
-# Push database changes
-npm run db:push
-
-# Open Prisma Studio
-npm run db:studio
+npm run build
+npm start
 ```
 
-## Contributing
+## 🛠️ Development
 
-This is a starter template for voice-first business management. Customize it for your specific business needs.
+### Database Changes
 
-## License
+```bash
+# After modifying schema.prisma
+npx prisma generate
+npx prisma db push
+```
 
-MIT License - Feel free to use this for your business!
+### Testing Call Processing
+
+1. Set up Twilio webhook: `https://yourdomain.com/api/phone/webhook`
+2. Configure call forwarding to your Twilio number
+3. Make a test call with appointment details
+4. Check processing results in database
+
+## 🔒 Security & Compliance
+
+- **SOC 2 Type II** compliant infrastructure
+- **State-by-state** call recording compliance
+- **Automatic PII** redaction in transcriptions
+- **GDPR/CCPA** compliant data handling
+- **End-to-end encryption** for all data
+
+## 💡 Business Model
+
+- **Free Trial**: First month completely free
+- **Monthly Plan**: $15/month, unlimited calls
+- **Enterprise**: Custom pricing for teams
+
+## 📈 Metrics & Analytics
+
+Track key business metrics:
+- Calls processed
+- Jobs converted
+- Pipeline velocity
+- Customer satisfaction
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: Check the setup guides in `/docs`
+- **Issues**: Report bugs on GitHub Issues
+- **Email**: support@flynn.ai
+- **Phone**: +1 (555) FLYNN-AI
+
+## 🎯 Roadmap
+
+- [ ] Mobile app for field workers
+- [ ] Advanced analytics dashboard
+- [ ] CRM integrations (HubSpot, Salesforce)
+- [ ] Multi-language support
+- [ ] Team collaboration features
+- [ ] Advanced automation rules
+
+---
+
+**Built with:** Next.js 14, TypeScript, Tailwind CSS, Prisma, PostgreSQL, OpenAI, Stripe, Twilio, Resend
+
+**Made with ❤️ for service professionals who never want to miss an opportunity**

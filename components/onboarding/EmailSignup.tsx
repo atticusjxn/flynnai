@@ -45,7 +45,7 @@ export function EmailSignup({ onNext }: EmailSignupProps) {
           <Mail className="w-8 h-8 text-white" />
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome to AutoCalendar
+          Welcome to Flynn.ai
         </h2>
         <p className="text-gray-600 text-lg">
           Let's get your business set up in just a few minutes

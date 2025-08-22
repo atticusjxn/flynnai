@@ -13,7 +13,7 @@ export function CTASection() {
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto leading-relaxed">
             Join hundreds of service professionals who've eliminated missed appointments 
-            and boosted their revenue with AutoCalendar.
+            and boosted their revenue with Flynn.ai.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
@@ -47,12 +47,12 @@ export function CTASection() {
           <div className="mt-12 pt-8 border-t border-blue-500">
             <p className="text-blue-200 text-sm">
               Questions? Contact us at{' '}
-              <a href="mailto:support@autocalendar.ai" className="text-white underline hover:no-underline">
-                support@autocalendar.ai
+              <a href="mailto:support@flynn.ai" className="text-white underline hover:no-underline">
+                support@flynn.ai
               </a>
               {' '}or call{' '}
-              <a href="tel:+1-555-CALENDAR" className="text-white underline hover:no-underline">
-                +1 (555) CALENDAR
+              <a href="tel:+1-555-FLYNN" className="text-white underline hover:no-underline">
+                +1 (555) FLYNN
               </a>
             </p>
           </div>

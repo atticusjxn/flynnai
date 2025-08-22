@@ -172,7 +172,7 @@ export function PricingSection() {
               </div>
               
               <p className="text-center text-gray-600 mt-6">
-                Start your free trial today and see why 2,000+ businesses trust AutoCalendar 
+                Start your free trial today and see why 2,000+ businesses trust Flynn.ai 
                 to manage their customer calls and job scheduling.
               </p>
             </div>

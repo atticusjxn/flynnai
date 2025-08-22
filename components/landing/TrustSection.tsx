@@ -29,7 +29,7 @@ const stats = [
 
 const testimonials = [
   {
-    quote: "Since using AutoCalendar, I've captured 40% more jobs from phone calls. The scheduler keeps my whole team organized and we never double-book anymore.",
+    quote: "Since using Flynn.ai, I've captured 40% more jobs from phone calls. The scheduler keeps my whole team organized and we never double-book anymore.",
     author: "Mike Rodriguez",
     role: "Rodriguez Plumbing Services",
     location: "Austin, TX",
