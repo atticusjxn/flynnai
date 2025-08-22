@@ -101,6 +101,8 @@ model Invoice {
   user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   clientId    String
   client      Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  jobId       String?
+  job         Job?   @relation(fields: [jobId], references: [id], onDelete: SetNull)
   
   items       InvoiceItem[]
   
