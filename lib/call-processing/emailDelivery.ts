@@ -2,7 +2,12 @@ import { Resend } from 'resend'
 import { generateCalendarFile } from './calendarGenerator'
 import { generateContactCard } from './contactGenerator'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const getResendClient = () => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY environment variable is required')
+  }
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 interface EmailData {
   user: any
@@ -50,6 +55,7 @@ export async function sendAppointmentEmail({ user, callRecord, transcription }: 
     }
 
     // Send email
+    const resend = getResendClient()
     await resend.emails.send({
       from: 'AutoCalendar <appointments@autocalendar.ai>',
       to: user.email,
