@@ -1,4 +1,4 @@
-import ical from 'ical-generator'
+import ical, { ICalAttendeeRole, ICalAttendeeStatus } from 'ical-generator'
 
 export function generateCalendarFile(appointmentData: any): string {
   const calendar = ical({ name: 'AutoCalendar Appointment' })
@@ -51,8 +51,8 @@ export function generateCalendarFile(appointmentData: any): string {
     event.createAttendee({
       email: appointmentData.customerEmail,
       name: appointmentData.customerName || 'Customer',
-      role: 'req-participant',
-      status: 'needs-action'
+      role: ICalAttendeeRole.REQ,
+      status: ICalAttendeeStatus.NEEDSACTION
     })
   }
 
