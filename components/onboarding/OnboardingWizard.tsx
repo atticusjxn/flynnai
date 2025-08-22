@@ -44,8 +44,6 @@ export function OnboardingWizard() {
     setCurrentStep(prev => prev - 1)
   }
 
-  const CurrentStepComponent = steps[currentStep].component
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
@@ -90,10 +88,27 @@ export function OnboardingWizard() {
 
         {/* Step content */}
         <div className="max-w-4xl mx-auto">
-          <CurrentStepComponent
-            onNext={handleNext}
-            onBack={currentStep > 0 ? handleBack : () => {}}
-          />
+          {currentStep === 0 && (
+            <EmailSignup onNext={handleNext} />
+          )}
+          {currentStep === 1 && (
+            <PhoneVerification onNext={handleNext} onBack={handleBack} />
+          )}
+          {currentStep === 2 && (
+            <PhoneIntegration onNext={handleNext} onBack={handleBack} />
+          )}
+          {currentStep === 3 && (
+            <NotificationPreferences onNext={handleNext} onBack={handleBack} />
+          )}
+          {currentStep === 4 && (
+            <JobPipelineSetup onNext={handleNext} onBack={handleBack} />
+          )}
+          {currentStep === 5 && (
+            <TestCallSetup onNext={handleNext} onBack={handleBack} />
+          )}
+          {currentStep === 6 && (
+            <OnboardingComplete data={onboardingData} />
+          )}
         </div>
       </div>
     </div>
