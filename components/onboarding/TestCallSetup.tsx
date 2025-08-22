@@ -10,7 +10,18 @@ interface TestCallSetupProps {
 
 export function TestCallSetup({ onNext, onBack }: TestCallSetupProps) {
   const [testingPhase, setTestingPhase] = useState<'ready' | 'testing' | 'completed'>('ready')
-  const [testResults, setTestResults] = useState({
+  const [testResults, setTestResults] = useState<{
+    transcription: string
+    extractedData: {
+      customerName: string
+      phoneNumber: string
+      serviceType: string
+      appointmentDate: string
+      appointmentTime: string
+      confidence: number
+    } | null
+    success: boolean
+  }>({
     transcription: '',
     extractedData: null,
     success: false
