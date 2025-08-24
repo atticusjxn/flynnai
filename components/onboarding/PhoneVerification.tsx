@@ -19,29 +19,119 @@ export function PhoneVerification({ onNext, onBack }: PhoneVerificationProps) {
     if (!phone) return
     
     setIsVerifying(true)
-    // Simulate sending SMS
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    setIsCodeSent(true)
-    setIsVerifying(false)
+    
+    try {
+      // Convert phone to E.164 format for SMS
+      const cleanPhone = phone.replace(/\D/g, '')
+      let formattedPhone = ''
+      
+      if (cleanPhone.startsWith('04')) {
+        // Australian mobile: 04xx xxx xxx -> +614xxxxxxxx
+        formattedPhone = `+61${cleanPhone.substring(1)}`
+      } else if (cleanPhone.startsWith('61')) {
+        // Already international: 614xxxxxxxx -> +614xxxxxxxx
+        formattedPhone = `+${cleanPhone}`
+      } else {
+        // Assume US format for other numbers
+        formattedPhone = `+1${cleanPhone}`
+      }
+      
+      const response = await fetch('/api/auth/send-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phoneNumber: formattedPhone,
+        }),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send verification code')
+      }
+      
+      setIsCodeSent(true)
+    } catch (error) {
+      console.error('Error sending verification code:', error)
+      alert(error instanceof Error ? error.message : 'Failed to send verification code. Please try again.')
+    } finally {
+      setIsVerifying(false)
+    }
   }
 
   const verifyCode = async () => {
     if (!verificationCode || verificationCode.length !== 6) return
     
     setIsVerifying(true)
-    // Simulate verification
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsVerified(true)
-    setIsVerifying(false)
     
-    // Auto-advance after successful verification
-    setTimeout(() => {
-      onNext({ phone, verified: true })
-    }, 1000)
+    try {
+      // Convert phone to E.164 format for verification
+      const cleanPhone = phone.replace(/\D/g, '')
+      let formattedPhone = ''
+      
+      if (cleanPhone.startsWith('04')) {
+        formattedPhone = `+61${cleanPhone.substring(1)}`
+      } else if (cleanPhone.startsWith('61')) {
+        formattedPhone = `+${cleanPhone}`
+      } else {
+        formattedPhone = `+1${cleanPhone}`
+      }
+      
+      const response = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phoneNumber: formattedPhone,
+          code: verificationCode,
+        }),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Invalid verification code')
+      }
+      
+      setIsVerified(true)
+      
+      // Auto-advance after successful verification
+      setTimeout(() => {
+        onNext({ phone: formattedPhone, verified: true })
+      }, 1000)
+    } catch (error) {
+      console.error('Error verifying code:', error)
+      alert(error instanceof Error ? error.message : 'Invalid verification code. Please try again.')
+    } finally {
+      setIsVerifying(false)
+    }
   }
 
   const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, '')
+    // Remove all non-digits
+    let numbers = value.replace(/\D/g, '')
+    
+    // Handle Australian mobile numbers starting with 04
+    if (numbers.startsWith('04') || numbers.startsWith('61')) {
+      if (numbers.startsWith('61')) {
+        // International format +61 4xx xxx xxx
+        if (numbers.length <= 2) return `+${numbers}`
+        if (numbers.length <= 3) return `+${numbers.slice(0, 2)} ${numbers.slice(2)}`
+        if (numbers.length <= 6) return `+${numbers.slice(0, 2)} ${numbers.slice(2, 3)} ${numbers.slice(3)}`
+        if (numbers.length <= 9) return `+${numbers.slice(0, 2)} ${numbers.slice(2, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6)}`
+        return `+${numbers.slice(0, 2)} ${numbers.slice(2, 3)} ${numbers.slice(3, 6)} ${numbers.slice(6, 9)} ${numbers.slice(9, 12)}`
+      } else {
+        // Local format 04xx xxx xxx
+        if (numbers.length <= 4) return numbers
+        if (numbers.length <= 7) return `${numbers.slice(0, 4)} ${numbers.slice(4)}`
+        return `${numbers.slice(0, 4)} ${numbers.slice(4, 7)} ${numbers.slice(7, 10)}`
+      }
+    }
+    
+    // Fallback to US format for other numbers
     if (numbers.length <= 3) return numbers
     if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`
     return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`
@@ -88,11 +178,14 @@ export function PhoneVerification({ onNext, onBack }: PhoneVerificationProps) {
                 id="phone"
                 value={phone}
                 onChange={handlePhoneChange}
-                placeholder="(555) 123-4567"
+                placeholder="0412 345 678 or +61 4xx xxx xxx"
                 disabled={isCodeSent}
                 className="w-full pl-10 pr-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-lg disabled:bg-gray-50 disabled:text-gray-500"
               />
             </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Enter your Australian mobile number starting with 04, or use international format +61
+            </p>
           </div>
 
           {!isCodeSent ? (

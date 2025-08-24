@@ -1,6 +1,10 @@
 'use client'
 
 import { Phone, Mic, Mail, Calendar, Shield, Zap } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { AnimatedSection } from '../animations/AnimatedSection'
+import { TiltCard } from '../animations/TiltCard'
+import { staggerContainer, staggerItem } from '@/lib/animations'
 
 const features = [
   {
@@ -40,7 +44,7 @@ export function FeaturesSection() {
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <AnimatedSection className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Everything you need to capture every opportunity
             </h2>
@@ -48,53 +52,104 @@ export function FeaturesSection() {
               Our AI-powered system works seamlessly in the background, turning your phone 
               into a powerful appointment booking machine.
             </p>
-          </div>
+          </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div 
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {features.map((feature, index) => {
               const Icon = feature.icon
               return (
-                <div 
+                <motion.div 
                   key={index}
-                  className="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors duration-200"
+                  variants={staggerItem}
                 >
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
+                  <TiltCard 
+                    className="bg-gray-50 rounded-xl p-6 h-full hover:bg-gradient-to-br hover:from-gray-50 hover:to-blue-50 transition-all duration-300 border border-transparent hover:border-blue-100"
+                    tiltIntensity="subtle"
+                  >
+                    <motion.div 
+                      className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4"
+                      whileHover={{ 
+                        scale: 1.1,
+                        backgroundColor: "rgb(59 130 246 / 0.2)" 
+                      }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <motion.div
+                        whileHover={{ rotate: 360 }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        <Icon className="w-6 h-6 text-blue-600" />
+                      </motion.div>
+                    </motion.div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </TiltCard>
+                </motion.div>
               )
             })}
-          </div>
+          </motion.div>
 
-          <div className="mt-16 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 text-center">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Stop losing customers to missed calls
-            </h3>
-            <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
-              Studies show that 27% of potential customers hang up if calls aren't answered. 
-              With AutoCalendar, every call becomes an opportunity, even when you're busy.
-            </p>
-            <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-600">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>Zero missed appointments</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span>Automatic follow-up</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                <span>Professional communication</span>
-              </div>
-            </div>
-          </div>
+          <AnimatedSection className="mt-16">
+            <motion.div 
+              className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 text-center"
+              whileHover={{ 
+                scale: 1.02,
+                boxShadow: "0 20px 40px -12px rgba(0, 0, 0, 0.1)" 
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                Stop losing customers to missed calls
+              </h3>
+              <p className="text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+                Studies show that 27% of potential customers hang up if calls aren't answered. 
+                With Flynn.ai, every call becomes an opportunity, even when you're busy.
+              </p>
+              <motion.div 
+                className="flex flex-wrap justify-center gap-8 text-sm text-gray-600"
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+              >
+                {[
+                  { color: 'bg-green-500', text: 'Zero missed appointments' },
+                  { color: 'bg-blue-500', text: 'Automatic follow-up' },
+                  { color: 'bg-purple-500', text: 'Professional communication' }
+                ].map((item, index) => (
+                  <motion.div 
+                    key={index}
+                    className="flex items-center space-x-2"
+                    variants={staggerItem}
+                  >
+                    <motion.div 
+                      className={`w-2 h-2 ${item.color} rounded-full`}
+                      animate={{ 
+                        scale: [1, 1.5, 1],
+                        opacity: [1, 0.7, 1] 
+                      }}
+                      transition={{ 
+                        duration: 2,
+                        repeat: Infinity,
+                        delay: index * 0.5 
+                      }}
+                    />
+                    <span>{item.text}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </AnimatedSection>
         </div>
       </div>
     </section>

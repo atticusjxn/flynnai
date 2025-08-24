@@ -3,7 +3,12 @@
 import { useState } from 'react'
 import { Phone, ArrowRight, Play, CheckCircle, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { AnimatedDemo } from './AnimatedDemo'
+import { AnimatedSection } from '../animations/AnimatedSection'
+import { AnimatedButton } from '../animations/AnimatedButton'
+import { ParallaxElement } from '../animations/ParallaxElement'
+import { staggerContainer, staggerItem, fadeIn } from '@/lib/animations'
 
 export function HeroSection() {
   const [email, setEmail] = useState('')
@@ -18,100 +23,228 @@ export function HeroSection() {
           }}></div>
         </div>
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute top-10 right-10 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute bottom-10 left-20 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+          <ParallaxElement speed={0.3}>
+            <motion.div 
+              className="absolute top-10 left-10 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+              animate={{
+                scale: [1, 1.1, 1],
+                rotate: [0, 180, 360],
+              }}
+              transition={{
+                duration: 20,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            />
+          </ParallaxElement>
+          <ParallaxElement speed={0.5}>
+            <motion.div 
+              className="absolute top-10 right-10 w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+              animate={{
+                scale: [1.1, 1, 1.1],
+                rotate: [360, 180, 0],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            />
+          </ParallaxElement>
+          <ParallaxElement speed={0.4}>
+            <motion.div 
+              className="absolute bottom-10 left-20 w-72 h-72 bg-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+              animate={{
+                scale: [1, 1.2, 1],
+                rotate: [0, 90, 180, 270, 360],
+              }}
+              transition={{
+                duration: 30,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            />
+          </ParallaxElement>
         </div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 pt-20 pb-32">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8">
-              <Sparkles className="w-4 h-4 text-yellow-300" />
+          <motion.div 
+            className="text-center mb-16"
+            variants={staggerContainer}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div 
+              className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8"
+              variants={staggerItem}
+            >
+              <motion.div
+                animate={{ rotate: [0, 360] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              >
+                <Sparkles className="w-4 h-4 text-yellow-300" />
+              </motion.div>
               <span className="text-white text-sm font-medium">First month completely FREE</span>
-            </div>
+            </motion.div>
             
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+            <motion.h1 
+              className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight"
+              variants={staggerItem}
+            >
               Never miss an appointment from a{' '}
               <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
                 phone call
               </span>{' '}
               again
-            </h1>
+            </motion.h1>
             
-            <p className="text-xl md:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed">
+            <motion.p 
+              className="text-xl md:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed"
+              variants={staggerItem}
+            >
               AI instantly transforms customer calls into organized jobs in your scheduler. 
               Get email summaries, manage your pipeline, and never lose track of opportunities.
-            </p>
+            </motion.p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12">
-              <div className="flex items-center space-x-3 text-green-300 font-semibold">
-                <CheckCircle className="w-5 h-5" />
+            <motion.div 
+              className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-12"
+              variants={staggerItem}
+            >
+              <motion.div 
+                className="flex items-center space-x-3 text-green-300 font-semibold"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                </motion.div>
                 <span>30-day free trial</span>
-              </div>
-              <div className="flex items-center space-x-3 text-blue-200 font-semibold">
-                <CheckCircle className="w-5 h-5" />
+              </motion.div>
+              <motion.div 
+                className="flex items-center space-x-3 text-blue-200 font-semibold"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                </motion.div>
                 <span>2-minute setup</span>
-              </div>
-              <div className="flex items-center space-x-3 text-purple-200 font-semibold">
-                <CheckCircle className="w-5 h-5" />
+              </motion.div>
+              <motion.div 
+                className="flex items-center space-x-3 text-purple-200 font-semibold"
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                >
+                  <CheckCircle className="w-5 h-5" />
+                </motion.div>
                 <span>No credit card required</span>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Signup Form */}
-            <div className="order-2 lg:order-1">
-              <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
-                <div className="text-center mb-8">
-                  <h3 className="text-3xl font-bold text-gray-900 mb-2">
+            <AnimatedSection animation="slideUp" className="order-2 lg:order-1">
+              <motion.div 
+                className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20"
+                whileHover={{ 
+                  y: -5,
+                  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.3)"
+                }}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div 
+                  className="text-center mb-8"
+                  variants={staggerContainer}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <motion.h3 
+                    className="text-3xl font-bold text-gray-900 mb-2"
+                    variants={staggerItem}
+                  >
                     Start Your Free Trial
-                  </h3>
-                  <p className="text-gray-600">
+                  </motion.h3>
+                  <motion.p 
+                    className="text-gray-600"
+                    variants={staggerItem}
+                  >
                     $15/month after trial • Cancel anytime
-                  </p>
-                </div>
+                  </motion.p>
+                </motion.div>
                 
-                <form className="space-y-6">
-                  <div>
+                <motion.form 
+                  className="space-y-6"
+                  variants={staggerContainer}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                >
+                  <motion.div variants={staggerItem}>
                     <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-3">
                       Work Email Address
                     </label>
-                    <input
+                    <motion.input
                       type="email"
                       id="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="your@business.com"
                       className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-lg"
+                      whileFocus={{
+                        scale: 1.02,
+                        boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)"
+                      }}
                     />
-                  </div>
+                  </motion.div>
                   
-                  <Link href="/onboarding" className="block">
-                    <button
-                      type="button"
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                    >
-                      <span>Start Free Trial</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-                  </Link>
-                </form>
+                  <motion.div variants={staggerItem}>
+                    <Link href="/onboarding" className="block">
+                      <AnimatedButton 
+                        variant="primary" 
+                        size="lg"
+                        className="w-full text-lg"
+                      >
+                        <span>Start Free Trial</span>
+                        <ArrowRight className="w-5 h-5" />
+                      </AnimatedButton>
+                    </Link>
+                  </motion.div>
+                </motion.form>
                 
-                <div className="mt-6 text-center">
+                <motion.div 
+                  className="mt-6 text-center"
+                  variants={staggerItem}
+                >
                   <p className="text-sm text-gray-500">
                     Join 2,000+ businesses already using Flynn.ai
                   </p>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </AnimatedSection>
 
             {/* Animated Demo */}
-            <div className="order-1 lg:order-2">
-              <AnimatedDemo />
-            </div>
+            <AnimatedSection animation="slideUp" className="order-1 lg:order-2">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AnimatedDemo />
+              </motion.div>
+            </AnimatedSection>
           </div>
         </div>
       </div>

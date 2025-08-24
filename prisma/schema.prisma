@@ -8,62 +8,54 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  // Business phone settings
-  businessPhone    String?
-  phoneProvider    String?
-  twilioAccountSid String?
-  twilioAuthToken  String?
-  
-  // Business details
-  businessName     String?
-  businessType     String?
-  
-  // Subscription
-  stripeCustomerId   String?
-  subscriptionStatus String? @default("free_trial")
-  trialStartDate     DateTime? @default(now())
-  planType          String? @default("free_trial")
-  trialCallsUsed    Int? @default(0)
-  
-  // Notification preferences
-  emailNotifications Boolean @default(true)
-  inAppNotifications Boolean @default(true)
-  emailTiming       String? @default("immediate") // immediate, daily, weekly
-  
-  clients          Client[]
-  appointments     Appointment[]
-  invoices         Invoice[]
-  phoneIntegrations PhoneIntegration[]
-  callRecords      CallRecord[]
-  jobs             Job[]
-  
+  id                    String                 @id @default(cuid())
+  email                 String                 @unique
+  name                  String
+  password              String
+  phone                 String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  businessName          String?
+  businessPhone         String?
+  businessType          String?
+  emailNotifications    Boolean                @default(true)
+  emailTiming           String?                @default("immediate")
+  inAppNotifications    Boolean                @default(true)
+  phoneProvider         String?
+  planType              String?                @default("free_trial")
+  stripeCustomerId      String?
+  subscriptionStatus    String?                @default("free_trial")
+  trialCallsUsed        Int?                   @default(0)
+  trialStartDate        DateTime?              @default(now())
+  twilioAccountSid      String?
+  twilioAuthToken       String?
+  appointments          Appointment[]
+  callRecords           CallRecord[]
+  callTranscriptions    CallTranscription[]
+  clients               Client[]
+  customers             Customer[]
+  extractedAppointments ExtractedAppointment[]
+  invoices              Invoice[]
+  jobs                  Job[]
+  phoneIntegrations     PhoneIntegration[]
+
   @@map("users")
 }
 
 model Client {
-  id          String   @id @default(cuid())
-  name        String
-  email       String?
-  phone       String?
-  address     String?
-  notes       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  userId      String
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id           String        @id @default(cuid())
+  name         String
+  email        String?
+  phone        String?
+  address      String?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       String
   appointments Appointment[]
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   invoices     Invoice[]
-  
+
   @@map("clients")
 }
 
@@ -77,36 +69,33 @@ model Appointment {
   notes       String?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  
   userId      String
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   clientId    String
-  client      Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
+  client      Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("appointments")
 }
 
 model Invoice {
-  id          String        @id @default(cuid())
-  invoiceNumber String      @unique
-  description String
-  amount      Decimal       @db.Decimal(10, 2)
-  status      InvoiceStatus @default(DRAFT)
-  dueDate     DateTime?
-  paidDate    DateTime?
-  notes       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  userId      String
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  clientId    String
-  client      Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  jobId       String?
-  job         Job?   @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  
-  items       InvoiceItem[]
-  
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  description   String
+  amount        Decimal       @db.Decimal(10, 2)
+  status        InvoiceStatus @default(DRAFT)
+  dueDate       DateTime?
+  paidDate      DateTime?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        String
+  clientId      String
+  jobId         String?
+  items         InvoiceItem[]
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  job           Job?          @relation(fields: [jobId], references: [id])
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("invoices")
 }
 
@@ -116,11 +105,199 @@ model InvoiceItem {
   quantity    Int     @default(1)
   rate        Decimal @db.Decimal(10, 2)
   amount      Decimal @db.Decimal(10, 2)
-  
   invoiceId   String
   invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  
+
   @@map("invoice_items")
+}
+
+model PhoneIntegration {
+  id          String   @id @default(cuid())
+  provider    String
+  phoneNumber String
+  accountSid  String?
+  authToken   String?
+  webhookUrl  String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("phone_integrations")
+}
+
+model CallRecord {
+  id                   String                @id @default(cuid())
+  phoneNumber          String
+  callSid              String?
+  duration             Int?
+  transcription        String?
+  rawTranscription     String?
+  appointmentData      Json?
+  confidenceScore      Float?
+  status               CallProcessStatus     @default(PROCESSING)
+  emailSent            Boolean               @default(false)
+  calendarFileSent     Boolean               @default(false)
+  consentGiven         Boolean               @default(false)
+  recordingUrl         String?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  userId               String
+  recordingFileSize    Int?
+  recordingFormat      String?
+  recordingSid         String?
+  recordingStorageKey  String?
+  recordingStoredAt    DateTime?
+  user                 User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transcriptions       CallTranscription[]
+  extractedAppointment ExtractedAppointment?
+  job                  Job?
+
+  @@map("call_records")
+}
+
+model Job {
+  id                     String                @id @default(cuid())
+  title                  String
+  customerName           String
+  customerPhone          String?
+  customerEmail          String?
+  serviceType            String?
+  description            String?
+  scheduledDate          DateTime?
+  scheduledTime          String?
+  estimatedDuration      Int?
+  address                String?
+  status                 JobStatus             @default(QUOTING)
+  priority               String?               @default("normal")
+  estimatedCost          Decimal?              @db.Decimal(10, 2)
+  actualCost             Decimal?              @db.Decimal(10, 2)
+  notes                  String?
+  attachments            Json?
+  extractedFromCall      Boolean               @default(false)
+  callRecordId           String?               @unique
+  confidenceScore        Float?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  completedAt            DateTime?
+  userId                 String
+  customerId             String?
+  extractedAppointmentId String?
+  invoices               Invoice[]
+  callRecord             CallRecord?           @relation(fields: [callRecordId], references: [id])
+  customer               Customer?             @relation(fields: [customerId], references: [id])
+  extractedAppointment   ExtractedAppointment? @relation(fields: [extractedAppointmentId], references: [id])
+  user                   User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("jobs")
+}
+
+model PhoneVerification {
+  id          String   @id @default(cuid())
+  phoneNumber String   @unique
+  code        String
+  verified    Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("phone_verifications")
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  code      String
+  verified  Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_verifications")
+}
+
+model CallTranscription {
+  id                String     @id @default(cuid())
+  transcriptionText String
+  language          String?    @default("en")
+  confidenceScore   Float?
+  processingTime    Int?
+  audioFormat       String?
+  audioDuration     Int?
+  whisperModel      String?    @default("whisper-1")
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  callRecordId      String
+  userId            String
+  callRecord        CallRecord @relation(fields: [callRecordId], references: [id], onDelete: Cascade)
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("call_transcriptions")
+}
+
+model ExtractedAppointment {
+  id                String     @id @default(cuid())
+  customerName      String?
+  customerPhone     String?
+  customerEmail     String?
+  serviceType       String?
+  jobDescription    String?
+  urgencyLevel      String?    @default("normal")
+  preferredDate     DateTime?
+  preferredTime     String?
+  timeFlexibility   String?
+  serviceAddress    String?
+  addressConfidence Float?
+  quotedPrice       Decimal?   @db.Decimal(10, 2)
+  budgetMentioned   Decimal?   @db.Decimal(10, 2)
+  pricingDiscussion String?
+  confidenceScore   Float?
+  extractionModel   String?    @default("gpt-4")
+  processingTime    Int?
+  rawExtraction     Json?
+  isReviewed        Boolean    @default(false)
+  hasIssues         Boolean    @default(false)
+  reviewNotes       String?
+  manualOverride    Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  callRecordId      String     @unique
+  userId            String
+  customerId        String?
+  callRecord        CallRecord @relation(fields: [callRecordId], references: [id], onDelete: Cascade)
+  customer          Customer?  @relation(fields: [customerId], references: [id])
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobs              Job[]
+
+  @@map("extracted_appointments")
+}
+
+model Customer {
+  id                    String                 @id @default(cuid())
+  name                  String
+  phone                 String?
+  email                 String?
+  address               String?
+  preferredContact      String?                @default("phone")
+  notes                 String?
+  tags                  String[]
+  totalJobs             Int                    @default(0)
+  totalSpent            Decimal?               @default(0.00) @db.Decimal(10, 2)
+  averageJobValue       Decimal?               @db.Decimal(10, 2)
+  lastContactDate       DateTime?
+  status                CustomerStatus         @default(ACTIVE)
+  isBlacklisted         Boolean                @default(false)
+  blacklistReason       String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  userId                String
+  user                  User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  extractedAppointments ExtractedAppointment[]
+  jobs                  Job[]
+
+  @@unique([userId, phone])
+  @@map("customers")
 }
 
 enum AppointmentStatus {
@@ -140,90 +317,12 @@ enum InvoiceStatus {
   CANCELLED
 }
 
-model PhoneIntegration {
-  id           String   @id @default(cuid())
-  provider     String   // "twilio", "ringcentral", "custom"
-  phoneNumber  String
-  accountSid   String?
-  authToken    String?
-  webhookUrl   String?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  userId       String
-  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("phone_integrations")
-}
-
-model CallRecord {
-  id              String            @id @default(cuid())
-  phoneNumber     String
-  callSid         String?           // Twilio call SID
-  duration        Int?              // seconds
-  transcription   String?
-  rawTranscription String?
-  appointmentData Json?             // extracted appointment details
-  confidenceScore Float?
-  status          CallProcessStatus @default(PROCESSING)
-  emailSent       Boolean           @default(false)
-  calendarFileSent Boolean          @default(false)
-  consentGiven    Boolean           @default(false)
-  recordingUrl    String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  
-  userId          String
-  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("call_records")
-}
-
 enum CallProcessStatus {
   PROCESSING
   COMPLETED
   FAILED
   FILTERED_OUT
   NO_APPOINTMENT
-}
-
-model Job {
-  id              String    @id @default(cuid())
-  title           String
-  customerName    String
-  customerPhone   String?
-  customerEmail   String?
-  serviceType     String?
-  description     String?
-  scheduledDate   DateTime?
-  scheduledTime   String?
-  estimatedDuration Int?    // minutes
-  address         String?
-  status          JobStatus @default(QUOTING)
-  priority        String?   @default("normal") // low, normal, high, urgent
-  estimatedCost   Decimal?  @db.Decimal(10, 2)
-  actualCost      Decimal?  @db.Decimal(10, 2)
-  notes           String?
-  attachments     Json?     // file URLs, photos, etc.
-  
-  // AI extraction metadata
-  extractedFromCall Boolean @default(false)
-  callRecordId     String?
-  confidenceScore  Float?
-  
-  // Tracking
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  completedAt     DateTime?
-  
-  userId          String
-  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Relations
-  invoices        Invoice[]
-  
-  @@map("jobs")
 }
 
 enum JobStatus {
@@ -233,4 +332,11 @@ enum JobStatus {
   COMPLETED
   CANCELLED
   ON_HOLD
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  POTENTIAL
+  FORMER
 }
