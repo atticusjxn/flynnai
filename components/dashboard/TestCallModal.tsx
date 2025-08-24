@@ -47,16 +47,33 @@ export function TestCallModal({ isOpen, onClose, onCallComplete }: TestCallModal
 
     try {
       // Combine country code with phone number and format for Twilio
-      const cleanedNumber = phoneNumber.replace(/\D/g, '').replace(/^0+/, '') // Remove non-digits and leading zeros
+      let cleanedNumber = phoneNumber.replace(/\D/g, '') // Remove non-digits first
       
       let fullPhoneNumber
       if (countryCode === 'AU') {
+        // For Australian numbers, remove leading 0 if present
+        if (cleanedNumber.startsWith('0')) {
+          cleanedNumber = cleanedNumber.substring(1)
+        }
         // Format Australian numbers as +61 XXX XXX XXX to match Twilio verification format
-        fullPhoneNumber = `${selectedCountry.dialCode} ${cleanedNumber.slice(0, 3)} ${cleanedNumber.slice(3, 6)} ${cleanedNumber.slice(6)}`
+        // Your verified number is +61 497 779 071, so we need: +61 497 779 071
+        if (cleanedNumber.length === 9) {
+          fullPhoneNumber = `+61 ${cleanedNumber.slice(0, 3)} ${cleanedNumber.slice(3, 6)} ${cleanedNumber.slice(6)}`
+        } else {
+          fullPhoneNumber = `+61 ${cleanedNumber}`
+        }
       } else {
-        // For other countries, use standard format without spaces
+        // For other countries, remove leading zeros and use standard format
+        cleanedNumber = cleanedNumber.replace(/^0+/, '')
         fullPhoneNumber = selectedCountry.dialCode + cleanedNumber
       }
+      
+      console.log('Phone formatting debug:', { 
+        originalInput: phoneNumber, 
+        cleanedNumber, 
+        countryCode, 
+        finalFormat: fullPhoneNumber 
+      })
       
       const response = await fetch('/api/twilio/make-test-call', {
         method: 'POST',
