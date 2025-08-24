@@ -35,13 +35,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Clean and validate phone number
-    let formattedToNumber = toNumber
+    // Use the formatted phone number from frontend
+    const formattedToNumber = toNumber
     
-    // If the number doesn't start with +, it's already formatted by the frontend
+    // Basic validation - ensure it has a country code
     if (!toNumber.startsWith('+')) {
       return NextResponse.json(
-        { error: 'Invalid phone number format' },
+        { error: 'Invalid phone number format - missing country code' },
         { status: 400 }
       )
     }
@@ -54,8 +54,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
-    formattedToNumber = toNumber
 
     // Get business phone number from environment
     const fromNumber = process.env.TWILIO_PHONE_NUMBER

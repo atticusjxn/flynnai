@@ -46,8 +46,17 @@ export function TestCallModal({ isOpen, onClose, onCallComplete }: TestCallModal
     setStep('calling')
 
     try {
-      // Combine country code with phone number
-      const fullPhoneNumber = selectedCountry.dialCode + phoneNumber.replace(/^0+/, '') // Remove leading zeros
+      // Combine country code with phone number and format for Twilio
+      const cleanedNumber = phoneNumber.replace(/\D/g, '').replace(/^0+/, '') // Remove non-digits and leading zeros
+      
+      let fullPhoneNumber
+      if (countryCode === 'AU') {
+        // Format Australian numbers as +61 XXX XXX XXX to match Twilio verification format
+        fullPhoneNumber = `${selectedCountry.dialCode} ${cleanedNumber.slice(0, 3)} ${cleanedNumber.slice(3, 6)} ${cleanedNumber.slice(6)}`
+      } else {
+        // For other countries, use standard format without spaces
+        fullPhoneNumber = selectedCountry.dialCode + cleanedNumber
+      }
       
       const response = await fetch('/api/twilio/make-test-call', {
         method: 'POST',
