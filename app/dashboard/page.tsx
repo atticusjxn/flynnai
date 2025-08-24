@@ -8,6 +8,8 @@ export const runtime = 'edge'
 
 export default function DashboardPage() {
   const [isTestCallModalOpen, setIsTestCallModalOpen] = useState(false)
+  const [isSetupLoading, setIsSetupLoading] = useState(false)
+  const [setupMessage, setSetupMessage] = useState<string | null>(null)
   const [dashboardData, setDashboardData] = useState({
     totalCalls: 0,
     processedCalls: 0,
@@ -44,6 +46,34 @@ export default function DashboardPage() {
     setTimeout(() => {
       refreshDashboardData()
     }, 5000)
+  }
+
+  const handleSetupPhoneIntegration = async () => {
+    setIsSetupLoading(true)
+    setSetupMessage(null)
+
+    try {
+      const response = await fetch('/api/setup-phone-integration', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Setup failed')
+      }
+
+      setSetupMessage('✅ Phone integration setup complete! Test calls will now appear in your dashboard.')
+    } catch (error) {
+      console.error('Setup error:', error)
+      setSetupMessage('❌ Setup failed. Please check console for details.')
+    } finally {
+      setIsSetupLoading(false)
+    }
   }
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,6 +174,17 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Setup Message */}
+        {setupMessage && (
+          <div className={`rounded-lg p-4 mb-6 ${
+            setupMessage.includes('✅') 
+              ? 'bg-green-50 border border-green-200 text-green-800' 
+              : 'bg-red-50 border border-red-200 text-red-800'
+          }`}>
+            {setupMessage}
+          </div>
+        )}
+
         {/* Quick Actions */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
@@ -154,8 +195,12 @@ export default function DashboardPage() {
             >
               📞 Make Test Call
             </button>
-            <button className="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
-              📋 View Jobs
+            <button 
+              onClick={handleSetupPhoneIntegration}
+              disabled={isSetupLoading}
+              className="flex items-center justify-center px-4 py-3 border-2 border-dashed border-green-300 rounded-lg text-sm font-medium text-green-600 hover:border-green-400 hover:text-green-700 hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSetupLoading ? '⏳ Setting up...' : '🔧 Setup Call Logging'}
             </button>
             <button className="flex items-center justify-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-500 hover:border-gray-400 hover:text-gray-600 transition-colors">
               ⚙️ Settings
